@@ -1,77 +1,79 @@
-
 "use client";
 
-import { useAccount } from "wagmi";
-import { Address } from "@scaffold-ui/components";
+import launchTokenArtifact from "../../hardhat/artifacts/contracts/LaunchToken.sol/LaunchToken.json";
 import type { NextPage } from "next";
-import Link from "next/link";
-import { BugAntIcon, MagnifyingGlassIcon } from "@heroicons/react/24/outline";
-import { useTargetNetwork } from "~~/hooks/scaffold-eth";
+import type { Hex } from "viem";
+import { avalancheFuji } from "viem/chains";
+import { useAccount, useDeployContract, useWaitForTransactionReceipt } from "wagmi";
 
+const FUJI_EXPLORER = "https://testnet.snowtrace.io";
 
 const Home: NextPage = () => {
-  const { address: connectedAddress } = useAccount();
-  const { targetNetwork } = useTargetNetwork();
+  const { address } = useAccount();
+  const { data: hash, deployContract, error, isPending } = useDeployContract();
+  const { data: receipt, isLoading: isConfirming } = useWaitForTransactionReceipt({ hash });
+
+  const deploy = () => {
+    if (!address) return;
+
+    deployContract({
+      abi: launchTokenArtifact.abi,
+      bytecode: launchTokenArtifact.bytecode as Hex,
+      args: [address],
+      chainId: avalancheFuji.id,
+    });
+  };
 
   return (
-    <>
-      <div className="flex items-center flex-col grow pt-10">
-        <div className="px-5">
-          <h1 className="text-center">
-            <span className="block text-2xl mb-2">Welcome to</span>
-            <span className="block text-4xl font-bold">Scaffold-ETH 2</span>
-            
-          </h1>
-          <div className="flex justify-center items-center space-x-2 flex-col">
-            <p className="my-2 font-medium">Connected Address:</p>
-            <Address address={connectedAddress} chain={targetNetwork} />
-          </div>
-          
-<p className="text-center text-lg">
-  Get started by editing{" "}
-  <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-    packages/nextjs/app/page.tsx
-  </code>
-</p>
-<p className="text-center text-lg">
-  Edit your smart contract{" "}
-  <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-    YourContract.sol
-  </code>{" "}
-  in{" "}
-  <code className="italic bg-base-300 text-base font-bold max-w-full break-words break-all inline-block">
-    packages/hardhat/contracts
-  </code>
-</p>
+    <main className="flex grow items-center justify-center bg-base-200 px-4 py-12">
+      <section className="w-full max-w-2xl rounded-2xl border border-base-300 bg-base-100 p-8 shadow-sm sm:p-12">
+        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Avalanche Fuji</p>
+        <h1 className="mt-3 text-4xl font-black tracking-tight sm:text-5xl">Deploy AVLT</h1>
+        <p className="mt-4 text-base-content/70">
+          Connect a Fuji wallet to deploy the 100,000 AVLT LaunchToken. Confirmation and explorer links will appear here
+          after the wallet submits the transaction.
+        </p>
 
+        <div className="mt-8 rounded-xl border border-base-300 bg-base-200 p-4">
+          <p className="text-sm text-base-content/70">Connected wallet</p>
+          <p className="mt-1 break-all font-mono text-sm font-semibold">{address ?? "Connect a wallet to continue."}</p>
         </div>
 
-        <div className="grow bg-base-300 w-full mt-16 px-8 py-12">
-          <div className="flex justify-center items-center gap-12 flex-col md:flex-row">
-            <div className="flex flex-col bg-base-100 border border-base-300 px-10 py-10 text-center items-center max-w-xs">
-              <BugAntIcon className="h-8 w-8" />
-              <p>
-                Tinker with your smart contract using the{" "}
-                <Link href="/debug" passHref className="link">
-                  Debug Contracts
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-            <div className="flex flex-col bg-base-100 border border-base-300 px-10 py-10 text-center items-center max-w-xs">
-              <MagnifyingGlassIcon className="h-8 w-8" />
-              <p>
-                Explore your local transactions with the{" "}
-                <Link href="/blockexplorer" passHref className="link">
-                  Block Explorer
-                </Link>{" "}
-                tab.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </>
+        <button
+          className="btn btn-primary mt-6 w-full"
+          disabled={isPending || isConfirming || !address}
+          onClick={deploy}
+          type="button"
+        >
+          {isPending ? "Confirm deployment in wallet" : isConfirming ? "Confirming deployment" : "Deploy AVLT to Fuji"}
+        </button>
+
+        {hash && (
+          <p className="mt-6 break-all text-sm">
+            Deployment transaction:{" "}
+            <a className="link link-primary" href={`${FUJI_EXPLORER}/tx/${hash}`} rel="noreferrer" target="_blank">
+              {hash}
+            </a>
+          </p>
+        )}
+
+        {receipt?.contractAddress && (
+          <p className="mt-3 break-all text-sm text-success">
+            Contract deployed:{" "}
+            <a
+              className="link link-success"
+              href={`${FUJI_EXPLORER}/address/${receipt.contractAddress}`}
+              rel="noreferrer"
+              target="_blank"
+            >
+              {receipt.contractAddress}
+            </a>
+          </p>
+        )}
+
+        {error && <p className="mt-6 break-words text-sm text-error">{error.message}</p>}
+      </section>
+    </main>
   );
 };
 
