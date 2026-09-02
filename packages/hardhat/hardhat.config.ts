@@ -34,6 +34,7 @@ export default defineConfig({
       {
         version: '0.8.30',
         settings: {
+          evmVersion: "cancun",
           optimizer: {
             enabled: true,
             // https://docs.soliditylang.org/en/latest/using-the-compiler.html#optimizer-options
@@ -63,6 +64,12 @@ export default defineConfig({
     default: {
       type: 'http',
       url: 'http://127.0.0.1:8545'
+    },
+    avalancheFuji: {
+      type: "http",
+      chainId: 43113,
+      url: "https://api.avax-test.network/ext/bc/C/rpc",
+      accounts: [],
     },
     hardhat: {
       type: 'edr-simulated',
