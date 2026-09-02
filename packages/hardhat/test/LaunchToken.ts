@@ -15,9 +15,11 @@ describe("LaunchToken", () => {
   it("mints the supply to the holder", async () => {
     const token = await networkHelpers.loadFixture(deployFixture);
     const [holder] = await ethers.getSigners();
+    const expectedSupply = 100_000n * 10n ** 18n;
     expect(await token.name()).to.equal("Avalanche Launch Token");
     expect(await token.symbol()).to.equal("AVLT");
-    expect(await token.balanceOf(holder.address)).to.equal(await token.totalSupply());
+    expect(await token.totalSupply()).to.equal(expectedSupply);
+    expect(await token.balanceOf(holder.address)).to.equal(expectedSupply);
   });
 
   it("transfers tokens", async () => {
