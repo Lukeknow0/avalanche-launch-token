@@ -1,83 +1,83 @@
-# 🏗 Scaffold-ETH 2
+# Avalanche Launch Token
 
-<h4 align="center">
-  <a href="https://docs.scaffoldeth.io">Documentation</a> |
-  <a href="https://scaffoldeth.io">Website</a>
-</h4>
+A small, verifiable Avalanche DApp built for the Team1 Avalanche Builder Launchpad. It lets a connected wallet deploy a fixed-supply ERC-20 contract to Avalanche Fuji and links directly to the resulting transaction and contract on Snowtrace.
 
-🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
+## Live on Avalanche Fuji
 
-> [!NOTE]
-> 🤖 Scaffold-ETH 2 is AI-ready! It has everything agents need to build on Ethereum. Check `.agents/`, `.claude/`, `.opencode` or `.cursor/` for more info.
+| Item | Value |
+| --- | --- |
+| Network | Avalanche Fuji C-Chain (`43113`) |
+| Contract | `LaunchToken` (`AVLT`) |
+| Supply | `100,000 AVLT` minted once to the initial holder |
+| Contract address | [`0x2e13c18fabf0085fa57dc3094b7a877a80585058`](https://testnet.snowtrace.io/address/0x2e13c18fabf0085fa57dc3094b7a877a80585058) |
+| Deployment transaction | [`0xda6aa329d984b23736d4ae0b41f275e0105e4075c5cf21d9f20d06f406caf44f`](https://testnet.snowtrace.io/tx/0xda6aa329d984b23736d4ae0b41f275e0105e4075c5cf21d9f20d06f406caf44f) |
+| Deployment block | `58143963` |
 
-⚙️ Built using NextJS, RainbowKit, Hardhat, Wagmi, Viem, and Typescript.
+> This project uses testnet assets only. `AVLT` has no financial value.
 
-- ✅ **Contract Hot Reload**: Your frontend auto-adapts to your smart contract as you edit it.
-- 🪝 **[Custom hooks](https://docs.scaffoldeth.io/hooks/)**: Collection of React hooks wrapper around [wagmi](https://wagmi.sh/) to simplify interactions with smart contracts with typescript autocompletion.
-- 🧱 [**Components**](https://docs.scaffoldeth.io/components/): Collection of common web3 components to quickly build your frontend.
-- 🔥 **Burner Wallet & Local Faucet**: Quickly test your application with a burner wallet and local faucet.
-- 🔐 **Integration with Wallet Providers**: Connect to different wallet providers and interact with the Ethereum network.
+## What it demonstrates
 
-![Debug Contracts tab](https://github.com/scaffold-eth/scaffold-eth-2/assets/55535804/b237af0c-5027-4849-a5c1-2e31495cccb1)
+- A custom Solidity ERC-20 contract built with OpenZeppelin.
+- A deterministic deployment script and contract tests.
+- Avalanche Fuji network configuration with burner wallets disabled.
+- A Next.js wallet UI that deploys `LaunchToken` from the user's wallet.
+- Confirmation and Snowtrace links after deployment.
 
-## Requirements
+## Contract
 
-Before you begin, you need to install the following tools:
+[`packages/hardhat/contracts/LaunchToken.sol`](packages/hardhat/contracts/LaunchToken.sol) mints the complete fixed supply in its constructor:
 
-- [Node (>= v20.18.3)](https://nodejs.org/en/download/)
-- Yarn ([v1](https://classic.yarnpkg.com/en/docs/install/) or [v2+](https://yarnpkg.com/getting-started/install))
-- [Git](https://git-scm.com/downloads)
-
-## Quickstart
-
-To get started with Scaffold-ETH 2, follow the steps below:
-
-1. Install dependencies if it was skipped in CLI:
-
+```solidity
+contract LaunchToken is ERC20 {
+    constructor(address initialHolder) ERC20("Avalanche Launch Token", "AVLT") {
+        _mint(initialHolder, 100_000 ether);
+    }
+}
 ```
-cd my-dapp-example
+
+There is no owner-only mint function, transfer tax, blacklist, or upgrade path.
+
+## Stack
+
+- Solidity `0.8.30`
+- OpenZeppelin Contracts
+- Hardhat
+- Next.js, React, TypeScript
+- Wagmi, Viem, RainbowKit
+- Scaffold-ETH 2
+
+## Run locally
+
+Requirements: Node.js `>=22.10.0` and Yarn 4.
+
+```bash
 yarn install
-```
-
-2. Run a local network in the first terminal:
-
-```
-yarn chain
-```
-
-This command starts a local Ethereum network using Hardhat. The network runs on your local machine and can be used for testing and development. You can customize the network configuration in `packages/hardhat/hardhat.config.ts`.
-
-3. On a second terminal, deploy the test contract:
-
-```
-yarn deploy
-```
-
-This command deploys a test smart contract to the local network. The contract is located in `packages/hardhat/contracts` and can be modified to suit your needs. The `yarn deploy` command uses the deploy script located in `packages/hardhat/deploy` to deploy the contract to the network. You can also customize the deploy script.
-
-4. On a third terminal, start your NextJS app:
-
-```
+yarn compile
+yarn test
 yarn start
 ```
 
-Visit your app on: `http://localhost:3000`. You can interact with your smart contract using the `Debug Contracts` page. You can tweak the app config in `packages/nextjs/scaffold.config.ts`.
+Open <http://localhost:3000>, connect a wallet on Avalanche Fuji, and deploy. The wallet pays testnet gas and receives the initial token supply.
 
-Run smart contract test with `yarn hardhat:test`
+## Verify
 
-- Edit your smart contracts in `packages/hardhat/contracts`
-- Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
-- Edit your deployment scripts in `packages/hardhat/deploy`
+```bash
+yarn compile
+yarn test
+yarn lint
+yarn next:build
+```
 
+Current automated contract coverage verifies metadata, fixed supply allocation, and transfers.
 
-## Documentation
+## Project structure
 
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
+```text
+packages/hardhat/contracts/LaunchToken.sol       Solidity contract
+packages/hardhat/deploy/01_deploy_launch_token.ts Deployment script
+packages/hardhat/test/LaunchToken.ts             Contract tests
+packages/nextjs/app/page.tsx                     Fuji deployment UI
+packages/nextjs/scaffold.config.ts                Frontend network config
+```
 
-To know more about its features, check out our [website](https://scaffoldeth.io).
-
-## Contributing to Scaffold-ETH 2
-
-We welcome contributions to Scaffold-ETH 2!
-
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.
+Built by [`Lukeknow0`](https://github.com/Lukeknow0) for the Avalanche Builder Launchpad.
