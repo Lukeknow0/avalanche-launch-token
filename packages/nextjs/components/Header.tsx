@@ -83,7 +83,12 @@ export const Header = () => {
         </details>
         <Link href="/" passHref className="hidden lg:flex items-center gap-2 ml-4 mr-6 shrink-0">
           <div className="flex relative w-10 h-10">
-            <Image alt="Avalanche Launch Token logo" className="cursor-pointer" fill src="/logo.svg" />
+            <Image
+              alt="Avalanche Launch Token logo"
+              className="cursor-pointer"
+              fill
+              src={`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/logo.svg`}
+            />
           </div>
           <div className="flex flex-col">
             <span className="font-bold leading-tight">Avalanche Launch Token</span>
